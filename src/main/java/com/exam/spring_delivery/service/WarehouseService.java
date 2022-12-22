@@ -1,8 +1,11 @@
 package com.exam.spring_delivery.service;
 
-import com.exam.spring_delivery.entity.Delivery;
+import com.exam.spring_delivery.dto.WarehouseDto;
 import com.exam.spring_delivery.entity.Warehouse;
 import com.exam.spring_delivery.exception.EntityNotFoundException;
+import com.exam.spring_delivery.mapper.Mapper;
+import com.exam.spring_delivery.repository.AddressRepository;
+import com.exam.spring_delivery.repository.DeliveryRepository;
 import com.exam.spring_delivery.repository.WarehouseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,26 +16,28 @@ import java.util.List;
 @Service
 public class WarehouseService {
     private final WarehouseRepository warehouseRepository;
+    private final AddressRepository addressRepository;
+    private final DeliveryRepository deliveryRepository;
+    private final Mapper mapper;
 
-    public List<Warehouse> getAll() {
-        return warehouseRepository.findAll();
+    public List<WarehouseDto> getAll() {
+        return warehouseRepository.findAll().stream().map(mapper::toWarehouseDto).toList();
     }
 
-    public Warehouse get(Long id) {
-        return warehouseRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    public WarehouseDto get(Long id) {
+        return mapper.toWarehouseDto(retrieve(id));
     }
 
-    //https://stackoverflow.com/questions/11881479/how-do-i-update-an-entity-using-spring-data-jpa норм так робити?
-    public void update(Long id, Warehouse warehouse) {
-        if (warehouseRepository.existsById(id)) {
-            getRidOfReferences(warehouse);
-            warehouse.setId(id);
-            warehouseRepository.save(warehouse);
-        }
+    public void update(Long id, WarehouseDto warehouseDto) {
+        Warehouse warehouse = retrieve(id);
+        mapper.mergeWarehouse(warehouseDto, warehouse);
+        fetchReferences(warehouseDto, warehouse);
+        warehouseRepository.save(warehouse);
     }
 
-    public void create(Warehouse warehouse) {
-        getRidOfReferences(warehouse);
+    public void create(WarehouseDto warehouseDto) {
+        Warehouse warehouse = mapper.toWarehouse(warehouseDto);
+        fetchReferences(warehouseDto, warehouse);
         warehouseRepository.save(warehouse);
     }
 
@@ -40,10 +45,13 @@ public class WarehouseService {
         warehouseRepository.deleteById(id);
     }
 
-    //@TODO: прибрати після виконання дз
-    public void getRidOfReferences(Warehouse warehouse) {
-        warehouse.setAddress(null);
-        warehouse.setDeliveriesFrom(null);
-        warehouse.setDeliveriesTo(null);
+    public Warehouse retrieve(Long id) {
+        return warehouseRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Warehouse" + id));
+    }
+
+    public void fetchReferences(WarehouseDto warehouseDto, Warehouse warehouse) {
+        Long addressId = warehouseDto.getAddressId();
+        warehouse.setAddress(addressRepository.findById(addressId)
+                .orElseThrow(() -> new EntityNotFoundException("Address" + addressId)));
     }
 }

@@ -1,8 +1,12 @@
 package com.exam.spring_delivery.service;
 
+import com.exam.spring_delivery.dto.DeliveryDto;
 import com.exam.spring_delivery.entity.Delivery;
 import com.exam.spring_delivery.exception.EntityNotFoundException;
+import com.exam.spring_delivery.mapper.Mapper;
 import com.exam.spring_delivery.repository.DeliveryRepository;
+import com.exam.spring_delivery.repository.TransporterRepository;
+import com.exam.spring_delivery.repository.WarehouseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,26 +16,28 @@ import java.util.List;
 @Service
 public class DeliveryService {
     private final DeliveryRepository deliveryRepository;
+    private final TransporterRepository transporterRepository;
+    private final WarehouseRepository warehouseRepository;
+    private final Mapper mapper;
 
-    public List<Delivery> getAll() {
-        return deliveryRepository.findAll();
+    public List<DeliveryDto> getAll() {
+        return deliveryRepository.findAll().stream().map(mapper::toDeliveryDto).toList();
     }
 
-    public Delivery get(Long id) {
-        return deliveryRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    public DeliveryDto get(Long id) {
+        return mapper.toDeliveryDto(retrieve(id));
     }
 
-    //https://stackoverflow.com/questions/11881479/how-do-i-update-an-entity-using-spring-data-jpa норм так робити?
-    public void update(Long id, Delivery delivery) {
-        if (deliveryRepository.existsById(id)) {
-            getRidOfReferences(delivery);
-            delivery.setId(id);
-            deliveryRepository.save(delivery);
-        }
+    public void update(Long id, DeliveryDto deliveryDto) {
+        Delivery delivery = retrieve(id);
+        mapper.mergeDelivery(deliveryDto, delivery);
+        fetchReferences(deliveryDto, delivery);
+        deliveryRepository.save(delivery);
     }
 
-    public void create(Delivery delivery) {
-        getRidOfReferences(delivery);
+    public void create(DeliveryDto deliveryDto) {
+        Delivery delivery = mapper.toDelivery(deliveryDto);
+        fetchReferences(deliveryDto, delivery);
         deliveryRepository.save(delivery);
     }
 
@@ -39,10 +45,19 @@ public class DeliveryService {
         deliveryRepository.deleteById(id);
     }
 
-    //@TODO: прибрати після виконання дз
-    public void getRidOfReferences(Delivery delivery) {
-        delivery.setWarehouseFrom(null);
-        delivery.setWarehouseTo(null);
-        delivery.setTransporter(null);
+    public Delivery retrieve(Long id) {
+        return deliveryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Delivery" + id));
+    }
+
+    public void fetchReferences(DeliveryDto deliveryDto, Delivery delivery) {
+        Long warehouseFromId = deliveryDto.getWarehouseFromId();
+        Long warehouseToId = deliveryDto.getWarehouseToId();
+        Long transporterId = deliveryDto.getTransporterId();
+        delivery.setWarehouseFrom(warehouseRepository.findById(warehouseFromId)
+                .orElseThrow(() -> new EntityNotFoundException("Warehouse" + warehouseFromId)));
+        delivery.setWarehouseTo(warehouseRepository.findById(warehouseToId)
+                .orElseThrow(() -> new EntityNotFoundException("Warehouse" + warehouseToId)));
+        delivery.setTransporter(transporterRepository.findById(transporterId)
+                .orElseThrow(() -> new EntityNotFoundException("Transporter" + transporterId)));
     }
 }

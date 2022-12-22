@@ -1,7 +1,10 @@
 package com.exam.spring_delivery.service;
 
+import com.exam.spring_delivery.dto.TransporterDto;
 import com.exam.spring_delivery.entity.Transporter;
 import com.exam.spring_delivery.exception.EntityNotFoundException;
+import com.exam.spring_delivery.mapper.Mapper;
+import com.exam.spring_delivery.repository.DeliveryRepository;
 import com.exam.spring_delivery.repository.TransporterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,26 +15,27 @@ import java.util.List;
 @Service
 public class TransporterService {
     private final TransporterRepository transporterRepository;
+    private final DeliveryRepository deliveryRepository;
+    private final Mapper mapper;
 
-    public List<Transporter> getAll() {
-        return transporterRepository.findAll();
+    public List<TransporterDto> getAll() {
+        return transporterRepository.findAll().stream().map(mapper::toTransporterDto).toList();
     }
 
-    public Transporter get(Long id) {
-        return transporterRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    public TransporterDto get(Long id) {
+        return mapper.toTransporterDto(retrieve(id));
     }
 
-    //https://stackoverflow.com/questions/11881479/how-do-i-update-an-entity-using-spring-data-jpa норм так робити?
-    public void update(Long id, Transporter transporter) {
-        if (transporterRepository.existsById(id)) {
-            getRidOfReferences(transporter);
-            transporter.setId(id);
-            transporterRepository.save(transporter);
-        }
+    public void update(Long id, TransporterDto transporterDto) {
+        Transporter transporter = retrieve(id);
+        mapper.mergeTransporter(transporterDto, transporter);
+        fetchReferences(transporterDto, transporter);
+        transporterRepository.save(transporter);
     }
 
-    public void create(Transporter transporter) {
-        getRidOfReferences(transporter);
+    public void create(TransporterDto transporterDto) {
+        Transporter transporter = mapper.toTransporter(transporterDto);
+        fetchReferences(transporterDto, transporter);
         transporterRepository.save(transporter);
     }
 
@@ -39,8 +43,12 @@ public class TransporterService {
         transporterRepository.deleteById(id);
     }
 
-    //@TODO: прибрати після виконання дз
-    public void getRidOfReferences(Transporter transporter) {
-        transporter.setDeliveries(null);
+    public Transporter retrieve(Long id) {
+        return transporterRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Transporter" + id));
+    }
+
+    public void fetchReferences(TransporterDto transporterDto, Transporter transporter) {
+        //відношення OneToMany, потрібно змінювати вторинні ключі в delivery вручну,
+        //щоб не створити небезпечну каскадність і залежність від іншого сервісу. Лишу цю функцію для структури
     }
 }

@@ -1,6 +1,6 @@
 package com.exam.spring_delivery.controller;
 
-import com.exam.spring_delivery.entity.Warehouse;
+import com.exam.spring_delivery.dto.WarehouseDto;
 import com.exam.spring_delivery.service.WarehouseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,23 +14,23 @@ public class WarehouseController {
     private final WarehouseService warehouseService;
 
     @GetMapping
-    private List<Warehouse> getAll() {
+    private List<WarehouseDto> getAll() {
         return warehouseService.getAll();
     }
 
     @GetMapping(value = "/{id}")
-    private Warehouse get(@PathVariable Long id) {
+    private WarehouseDto get(@PathVariable Long id) {
         return warehouseService.get(id);
     }
 
     @PostMapping
-    public void create(@RequestBody Warehouse warehouse) {
-        warehouseService.create(warehouse);
+    public void create(@RequestBody WarehouseDto warehouseDto) {
+        warehouseService.create(warehouseDto);
     }
 
     @PutMapping("/{id}")
-    public void update(@PathVariable Long id, @RequestBody Warehouse warehouse) {
-        warehouseService.update(id, warehouse);
+    public void update(@PathVariable Long id, @RequestBody WarehouseDto warehouseDto) {
+        warehouseService.update(id, warehouseDto);
     }
 
     @DeleteMapping("/{id}")

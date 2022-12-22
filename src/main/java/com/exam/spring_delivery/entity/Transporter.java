@@ -1,20 +1,19 @@
 package com.exam.spring_delivery.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 public class Transporter {
+    @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
     private String name;
@@ -23,6 +22,7 @@ public class Transporter {
 
     private Integer loadCapacity;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "transporter")
     private List<Delivery> deliveries;
 }
