@@ -1,5 +1,6 @@
 package com.exam.spring_delivery.dto;
 
+import com.exam.spring_delivery.entity.Address;
 import lombok.Data;
 
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.List;
 public class WarehouseDto {
     private Long id;
     private String title;
-    private Long addressId;
+    private Address address;
     private List<Long> deliveriesFromIds;
     private List<Long> deliveriesToIds;
 }

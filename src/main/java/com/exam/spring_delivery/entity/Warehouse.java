@@ -18,9 +18,7 @@ public class Warehouse {
 
     private String title;
 
-    @ToString.Exclude
-    @OneToOne
-    @JoinColumn(name = "address_id")
+    @Embedded
     private Address address;
 
     @ToString.Exclude

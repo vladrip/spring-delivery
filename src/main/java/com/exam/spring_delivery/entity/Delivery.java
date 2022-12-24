@@ -1,6 +1,5 @@
 package com.exam.spring_delivery.entity;
 
-import com.exam.spring_delivery.model.delivery.DeliveryStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +18,7 @@ public class Delivery {
 
     private Integer cargoAmount;
 
-    /**Конвертація через model.delivery.DeliveryStatusConverter*/
+    @Enumerated(EnumType.STRING)
     private DeliveryStatus deliveryStatus;
 
     @ToString.Exclude
@@ -36,4 +35,14 @@ public class Delivery {
     @ManyToOne
     @JoinColumn(name = "transporter_id")
     private Transporter transporter;
+
+    public enum DeliveryStatus {
+        PROCESSING,
+        ACCEPTED,
+        IN_TRANSIT,
+        DELIVERED,
+        PICKED_UP,
+        CANCELED,
+        UNKNOWN
+    }
 }

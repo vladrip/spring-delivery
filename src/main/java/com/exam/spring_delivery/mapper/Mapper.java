@@ -19,15 +19,12 @@ public interface Mapper {
         return entities.stream().map(Delivery::getId).toList();
     }
 
-    @Mapping(target = "addressId", source = "address.id")
     @Mapping(target = "deliveriesFromIds", source = "deliveriesFrom", qualifiedByName = "deliveriesToIds")
     @Mapping(target = "deliveriesToIds", source = "deliveriesTo", qualifiedByName = "deliveriesToIds")
     WarehouseDto toWarehouseDto(Warehouse entity);
-    @Mapping(target = "address", ignore = true)
     @Mapping(target = "deliveriesFrom", ignore = true)
     @Mapping(target = "deliveriesTo", ignore = true)
     Warehouse toWarehouse(WarehouseDto dto);
-    @Mapping(target = "address", ignore = true)
     @Mapping(target = "deliveriesFrom", ignore = true)
     @Mapping(target = "deliveriesTo", ignore = true)
     @Mapping(target = "id", ignore = true)
