@@ -16,7 +16,7 @@ public class Delivery {
 
     private String cargoName;
 
-    private Integer cargoAmount;
+    private Integer cargoWeight;
 
     @Enumerated(EnumType.STRING)
     private DeliveryStatus deliveryStatus;

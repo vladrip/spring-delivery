@@ -7,7 +7,7 @@ import lombok.Data;
 public class DeliveryDto {
     private Long id;
     private String cargoName;
-    private Integer cargoAmount;
+    private Integer cargoWeight;
     private Delivery.DeliveryStatus deliveryStatus;
     private Long warehouseFromId;
     private Long warehouseToId;

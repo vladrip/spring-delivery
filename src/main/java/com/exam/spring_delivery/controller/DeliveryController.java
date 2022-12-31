@@ -1,11 +1,14 @@
 package com.exam.spring_delivery.controller;
 
 import com.exam.spring_delivery.dto.DeliveryDto;
+import com.exam.spring_delivery.filter.DeliveryFilter;
 import com.exam.spring_delivery.service.DeliveryService;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -14,8 +17,9 @@ public class DeliveryController {
     private final DeliveryService deliveryService;
 
     @GetMapping
-    private List<DeliveryDto> getAll() {
-        return deliveryService.getAll();
+    private Page<DeliveryDto> getAll(DeliveryFilter deliveryFilter,
+                                     @PageableDefault(sort = "id") @ParameterObject Pageable pageable) {
+        return deliveryService.getAll(deliveryFilter, pageable);
     }
 
     @GetMapping(value = "/{id}")

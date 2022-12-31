@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class TransporterDto {
     private Long id;
-    private String name;
+    private String fullname;
     private String carModel;
     private Integer loadCapacity;
     private List<Long> deliveriesIds;

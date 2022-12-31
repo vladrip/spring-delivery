@@ -8,6 +8,6 @@ import lombok.Data;
 public class Address {
     private String city;
     private String street;
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
 }
